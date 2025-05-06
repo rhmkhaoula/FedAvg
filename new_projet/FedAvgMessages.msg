@@ -1,35 +1,85 @@
 // FedAvgMessages.msg
 // Message definitions for FedAvg algorithm in OMNeT++
 
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+
 cplusplus {{
-#include "inet/common/packet/chunk/Chunk.h"
-#include "inet/common/INETDefs.h"
 #include <vector>
 }}
 
 namespace inet;
 
-class noncobject std::vector<double>;
-
-// This message represents a model update (weights and biases)
 class FedAvgModelUpdate extends cObject {
-    std::vector<double> weights;    // Model weights
+    @customize(true);
+    @descriptor(readonly);
+    @fieldNameSuffix("_var");
+    abstract double weights[] @getter(getWeights) @sizeGetter(getWeightsArraySize) @setter(setWeights);
     int uavId;                      // ID of the UAV that sent the update
     int numSamples;                 // Number of samples used for training
     int roundNumber;                // Training round number
     simtime_t trainingTime;         // Time spent on local training
 }
 
-// This message is used by the base station to initiate a training round
+cplusplus(FedAvgModelUpdate) {{
+  public:
+    typedef std::vector<double> WeightsVector;
+    
+    // Getters for std::vector field
+    const WeightsVector& getWeights() const { return weights_var; }
+    double getWeights(size_t k) const { return weights_var[k]; }
+    void setWeights(const WeightsVector& weights) { weights_var = weights; }
+    void setWeights(size_t k, double weight) { weights_var[k] = weight; }
+    size_t getWeightsArraySize() const { return weights_var.size(); }
+    
+  private:
+    WeightsVector weights_var;
+}}
+
 class FedAvgInitiateTraining extends cObject {
+    @customize(true);
+    @descriptor(readonly);
+    @fieldNameSuffix("_var");
     int roundNumber;                // Current training round number
-    std::vector<double> weights;    // Global model weights to train from
+    abstract double weights[] @getter(getWeights) @sizeGetter(getWeightsArraySize) @setter(setWeights);
 }
 
-// This message is used by the base station to broadcast the updated global model
+cplusplus(FedAvgInitiateTraining) {{
+  public:
+    typedef std::vector<double> WeightsVector;
+    
+    // Getters for std::vector field
+    const WeightsVector& getWeights() const { return weights_var; }
+    double getWeights(size_t k) const { return weights_var[k]; }
+    void setWeights(const WeightsVector& weights) { weights_var = weights; }
+    void setWeights(size_t k, double weight) { weights_var[k] = weight; }
+    size_t getWeightsArraySize() const { return weights_var.size(); }
+    
+  private:
+    WeightsVector weights_var;
+}}
+
 class FedAvgGlobalModel extends cObject {
+    @customize(true);
+    @descriptor(readonly);
+    @fieldNameSuffix("_var");
     int roundNumber;                // Training round that just completed
-    std::vector<double> weights;    // Updated global model weights
+    abstract double weights[] @getter(getWeights) @sizeGetter(getWeightsArraySize) @setter(setWeights);
     double globalLoss;              // Global loss after aggregation
     double globalAccuracy;          // Global accuracy after aggregation
 }
+
+cplusplus(FedAvgGlobalModel) {{
+  public:
+    typedef std::vector<double> WeightsVector;
+    
+    // Getters for std::vector field
+    const WeightsVector& getWeights() const { return weights_var; }
+    double getWeights(size_t k) const { return weights_var[k]; }
+    void setWeights(const WeightsVector& weights) { weights_var = weights; }
+    void setWeights(size_t k, double weight) { weights_var[k] = weight; }
+    size_t getWeightsArraySize() const { return weights_var.size(); }
+    
+  private:
+    WeightsVector weights_var;
+}}
